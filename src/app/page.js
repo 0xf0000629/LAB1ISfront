@@ -8,24 +8,6 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const router = useRouter();
 
-  const [options, setOptions] = useState([ 
-    'United States',
-'Canada',
-'Mexico',
-'United Kingdom',
-'Germany',
-'France',
-'Italy',
-'Spain',
-'India',
-'China',
-'Japan',
-'Australia',
-'Brazil',
-'South Africa',
-'Russia'
-]);
-
   const [token, setToken] = useState(undefined);
 
   const [login, setlogin] = useState("");
@@ -37,11 +19,6 @@ export default function Home() {
 
   const [adminstate, setAdmin] = useState(undefined);
 
-  const [thesurname, setsurname] = useState("");
-  const [thename, setname] = useState("");
-  const [thephone, setphone] = useState("");
-  const [thectr, setcountry] = useState("");
-
   const [badpass, setBP] = useState(0);
 
   const [activeForm, setActiveForm] = useState("login");
@@ -51,19 +28,6 @@ export default function Home() {
   };
   const handlePass = e => {
     setpassword(e.target.value);
-  };
-
-  const handleSN = e => {
-    setsurname(e.target.value);
-  };
-  const handleN = e => {
-    setname(e.target.value);
-  };
-  const handlePH = e => {
-    setphone(e.target.value);
-  };
-  const handleCTR = e => {
-    setcountry(e.target.value);
   };
 
   async function fetchMe(info) {
@@ -79,11 +43,7 @@ export default function Home() {
       let jsondata = response.json().then(jsondata => {
         const newme = {
           id: jsondata.id,
-          firstname: jsondata.name,
-          secondname: jsondata.surname,
-          elo: jsondata.elo,
-          active: jsondata.active,
-          ismod: jsondata.moderator,
+          username: jsondata.username,
           isadmin: adminstate,
         };
         localStorage.setItem("me", JSON.stringify(newme));
@@ -128,16 +88,12 @@ export default function Home() {
 
   const regEmIn = async e => {
     e.preventDefault();
-    const response = await fetch(process.env.USER + "/register", {
+    const response = await fetch(process.env.AUTH + "/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        username: login,
         password: password,
-        name: thename,
-        surname: thesurname,
-        phoneNumber: thephone,
-        countryId: Number(thectr) + 1,
+        username: username,
       }),
     });
     if (response.ok) {
@@ -187,7 +143,7 @@ export default function Home() {
             <form onSubmit={logEmIn}>
               <input className={styles.inputbig} 
                 type="text"
-                placeholder="Username..."
+                placeholder="Login..."
                 value={login}
                 onChange={handleLog}
               />
@@ -209,35 +165,6 @@ export default function Home() {
             <form onSubmit={regEmIn}>
               <input className={styles.inputbig} 
                 type="text"
-                placeholder="Surname..."
-                value={thesurname}
-                onChange={handleSN}
-              />
-              <br />
-              <input className={styles.inputbig} 
-                type="text"
-                placeholder="Name..."
-                value={thename}
-                onChange={handleN}
-              />
-              <br />
-              <input className={styles.inputbig} 
-                type="text"
-                placeholder="Phone number..."
-                value={thephone}
-                onChange={handlePH}
-              />
-              <br />
-              <select value={thectr} onChange={handleCTR}>
-                {options.map((option, id) => (
-                  <option key={option} value={id+1}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              <br />
-              <input className={styles.inputbig} 
-                type="text"
                 placeholder="Username..."
                 value={login}
                 onChange={handleLog}
@@ -246,6 +173,13 @@ export default function Home() {
               <input className={styles.inputbig} 
                 type="text"
                 placeholder="Password..."
+                value={password}
+                onChange={handlePass}
+              />
+              <br />
+              <input className={styles.inputbig} 
+                type="text"
+                placeholder="Password again..."
                 value={password}
                 onChange={handlePass}
               />
