@@ -10,28 +10,26 @@ export default function Home() {
 
   const [token, setToken] = useState(undefined);
 
-  const [login, setlogin] = useState("");
+  const [username, setusername] = useState("");
   const [password, setpassword] = useState("");
 
   const [me, setMe] = useState({
     placeholder: true,
   });
 
-  const [adminstate, setAdmin] = useState(undefined);
-
   const [badpass, setBP] = useState(0);
 
   const [activeForm, setActiveForm] = useState("login");
 
   const handleLog = e => {
-    setlogin(e.target.value);
+    setusername(e.target.value);
   };
   const handlePass = e => {
     setpassword(e.target.value);
   };
 
   async function fetchMe(info) {
-    const response = await fetch(process.env.USER + "/me", {
+    const response = await fetch(process.env.AUTH + "/me", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +42,7 @@ export default function Home() {
         const newme = {
           id: jsondata.id,
           username: jsondata.username,
-          isadmin: adminstate,
+          isadmin: jsondata.cool,
         };
         localStorage.setItem("me", JSON.stringify(newme));
         setMe(newme);
@@ -52,32 +50,21 @@ export default function Home() {
     } else console.log(response);
   }
 
-  const fetchAdmin = async () => {
-    const adminreq = await fetch(process.env.API + "/admin", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (adminreq.ok) {
-      setAdmin(1);
-    } else setAdmin(0);
-  };
-
   const logEmIn = async e => {
     e.preventDefault();
-    //console.log(`"Login:": ${login}, "Password:": ${password}`);
+    console.log(`"Login:": ${username}, "Password:": ${password}`);
     try {
       const response = await fetch(process.env.AUTH + "/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: login, password: password }),
+        body: JSON.stringify({ username: username, password: password }),
       });
       if (response.ok) {
-        const { token } = await response.json();
-        localStorage.setItem("authToken", token);
-        setToken(localStorage.getItem("authToken"));
+        let token = await response.json().then(token  => {
+          console.log("got this: " + token.authToken);
+          localStorage.setItem("authToken", token.authToken);
+          setToken(localStorage.getItem("authToken"));
+        });
       } else {
         console.log(response);
         setBP(1);
@@ -111,15 +98,12 @@ export default function Home() {
 
   useEffect(() => {
     if (token != undefined && token != null){
-      if (adminstate != undefined && adminstate != null) {
-        if (me.placeholder == undefined) {
-          router.push("/requests");
-        }
-        else fetchMe(token);
+      if (me.placeholder == undefined) {
+        router.push("/requests");
       }
-      else fetchAdmin(token);
+      else fetchMe(token);
     }
-  }, [me, adminstate, token]);
+  }, [me, token]);
 
   return (
     <div className={styles.page}>
@@ -144,7 +128,7 @@ export default function Home() {
               <input className={styles.inputbig} 
                 type="text"
                 placeholder="Login..."
-                value={login}
+                value={username}
                 onChange={handleLog}
               />
               <br />
@@ -166,20 +150,13 @@ export default function Home() {
               <input className={styles.inputbig} 
                 type="text"
                 placeholder="Username..."
-                value={login}
+                value={username}
                 onChange={handleLog}
               />
               <br />
               <input className={styles.inputbig} 
                 type="text"
                 placeholder="Password..."
-                value={password}
-                onChange={handlePass}
-              />
-              <br />
-              <input className={styles.inputbig} 
-                type="text"
-                placeholder="Password again..."
                 value={password}
                 onChange={handlePass}
               />
