@@ -26,8 +26,8 @@ export default function ProfilePanel(props) {
         Authorization: `Bearer ${window.localStorage.getItem("authToken")}`,
       },
     });
-    window.localStorage.removeItem("authToken");
     if (response.ok) {
+      window.localStorage.removeItem("authToken");
       console.log("logged out");
       router.push("/");
     } else console.log(response);
@@ -60,42 +60,6 @@ export default function ProfilePanel(props) {
         }}
       >
         <h2>Hello, {name}!</h2>
-        <button
-          onClick={() => router.push("/profile")}
-          className={styles.maxbutton}
-        >
-          My profile
-        </button>
-        {me.isadmin == 0 ? (
-        <button
-          onClick={() => router.push("/myrequests")}
-          className={styles.maxbutton}
-        >
-          My requests
-        </button>
-        ) : (
-          <></>
-        )}
-        {me.isadmin == 0 ? (
-        <button
-          onClick={() => router.push("/mymatches")}
-          className={styles.maxbutton}
-        >
-          My matches
-        </button>
-        ) : (
-          <></>
-        )}
-        {me.isadmin == 1 ? (
-          <button
-            onClick={() => router.push("/reports")}
-            className={styles.maxbutton}
-          >
-            Reports
-          </button>
-        ) : (
-          <></>
-        )}
         {me.isadmin == 1 ? (
           <button
             onClick={() => router.push("/unactivated")}

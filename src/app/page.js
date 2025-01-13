@@ -84,9 +84,10 @@ export default function Home() {
       }),
     });
     if (response.ok) {
-      const { token } = await response.json();
-      localStorage.setItem("authToken", token);
+      let token = await response.json().then(token  => {
+      localStorage.setItem("authToken", token.authToken);
       setToken(localStorage.getItem("authToken"));
+      });
     } else {
       console.log(response);
     }
@@ -99,7 +100,7 @@ export default function Home() {
   useEffect(() => {
     if (token != undefined && token != null){
       if (me.placeholder == undefined) {
-        router.push("/requests");
+        router.push("/cities");
       }
       else fetchMe(token);
     }

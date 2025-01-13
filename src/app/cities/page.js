@@ -13,21 +13,35 @@ import { UNDERSCORE_NOT_FOUND_ROUTE } from "next/dist/shared/lib/constants";
 let basedata = [
   {
     id: 1,
-    room: 234,
-    building: "ADDRESS",
-    time: "2020-11-20 11:30:00",
-    moderator_firstname: "richard",
-    moderator_secondname: "harrys",
-    moderator_elo: 2300,
-    players: [
-      {
-        id: 36,
-        firstname: "mike",
-        secondname: "hawk",
-        elo: 2300,
-      },
-    ],
+    name: "HORRENDOUS CITY",
+    coordinates:{
+      x: 2.3333,
+      y: 2.2222
+    },
+    creation_date: "2020-11-20 11:30:00",
+    created_by: "BSM",
+    area: 30000,
+    population: 2000,
+    establishment_date: "2020-11-20 11:30:00",
+    capital: true,
+    meters_above_sea_level: 30,
+    car_code: 2032,
+    climate: "SHIT",
+    standardOfLiving: "ASS",
+    governor: {
+      name: "Joe Mama",
+      age: 20,
+      height: 2
+    }
   },
+];
+let humandata = [
+  {
+    id: 1,
+    name: "Joe Mother",
+    age: 30,
+    height: 2  
+  }
 ];
 let basebuilding = [
   {
@@ -75,16 +89,17 @@ export default function Requests() {
   const [formActive, setForm] = useState(false);
 
   const [data, setData] = useState([]);
+  const [humandata, setHumanData] = useState([]);
+
+  const [what_do, setWhatDo] = useState(() => {});
+  const [what_do_title, setWhatDoTitle] = useState("");
+
 const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [reroll, setReroll] = useState(0);
   const [me, setMe] = useState({
-    id: -1,
-    firstname: "Guest",
-    secondname: "hawk",
-    elo: 2300,
-    active: true,
-    ismod: false, isadmin: false,
+    username: "guest",
+    isAdmin: false
   });
 
   useEffect(() => {
@@ -98,8 +113,8 @@ const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (token) {
-      fetchBuildings();
       fetchReqs(token);
+      fetchPeople(token);
       fetchMe(token);
     }
   }, [token]);
@@ -118,34 +133,8 @@ const [loading, setLoading] = useState(true);
     if (count > 1) setCount(count - 1);
   };
 
-  const fetchBuildings = async () => {
-    const response = await fetch(process.env.REQUEST, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (response.ok) {
-      console.log("epic");
-      let jsondata = response.json().then(jsondata => {
-        let loaded = [];
-        for (let i = 0; i < jsondata.length; i++) {
-          let item = jsondata[i];
-          loaded.push({
-            name: item.id,
-            rooms: [],
-          });
-          for (let j = 0; j < item.rooms.length; j++) {
-            loaded[loaded.length - 1].players.push(item.rooms[j]);
-          }
-        }
-        setData(loaded);
-      });
-    } else console.log(response);
-  };
   const fetchReqs = async () => {
-    const response = await fetch(process.env.REQUEST, {
+    const response = await fetch(process.env.CITIES, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -161,28 +150,59 @@ const [loading, setLoading] = useState(true);
           let item = jsondata[i];
           loaded.push({
             id: item.id,
-            room: item.roomId,
-            building: "",
-            time: item.dateTime,
-            moderator_id: item.moderator?.id,
-            moderator_firstname: item.moderator?.name,
-            moderator_secondname: item.moderator?.surname,
-            moderator_elo: item.moderator?.elo,
-            players: [],
+            name: item.name,
+            coordinates:{
+              x: item.coordinates.x,
+              y: item.coordinates.y
+            },
+            creation_date: item.creation_date,
+            created_by: item.created_by,
+            area: item.area,
+            population: item.population,
+            establishment_date: item.establishment_date,
+            capital: item.capital,
+            meters_above_sea_level: item.meters_above_sea_level,
+            car_code: item.car_code,
+            climate: item.climate,
+            standardOfLiving: item.standardOfLiving,
+            governor: {
+              name: item.governor.name,
+              age: item.governor.age,
+              height: item.governor.height
+            }
           });
-          for (let j = 0; j < item.participants.length; j++) {
-            loaded[loaded.length - 1].players.push({
-              id: item.participants[j].id,
-              firstname: item.participants[j].name,
-              secondname: item.participants[j].surname,
-              elo: item.participants[j].elo,
-            });
-          }
         }
         setData(loaded);
       });
     } else console.log(response);
   };
+  const fetchPeople = async () => {
+    const response = await fetch(process.env.HUMAN, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      setLoading(false);
+      console.log("epic");
+      let jsondata = response.json().then(jsondata => {
+        let loaded = [];
+        for (let i = 0; i < jsondata.length; i++) {
+          let item = jsondata[i];
+          loaded.push({
+            id: item.id,
+            name: item.name,
+            age: item.age,
+            height: item.height
+          });
+        }
+        setHumanData(loaded);
+      });
+    } else console.log(response);
+  };
+
   const fetchMe = async () => {
     if (localStorage.getItem("me") != undefined) {
       let loadme = JSON.parse(localStorage.getItem("me"));
@@ -195,16 +215,32 @@ const [loading, setLoading] = useState(true);
     formClose();
     const formData = new FormData(e.target);
     const reqdata = Object.fromEntries(formData.entries());
-
-    const response = await fetch(process.env.REQUEST + "/create", {
+    const now = new Date();
+    const response = await fetch(process.env.CITIES, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        roomId: Number(reqdata.room),
-        dateTime: reqdata.time,
+        name: reqdata.name,
+        coordinates: {
+          x: Number(reqdata.x),
+          y: Number(reqdata.y)
+        },
+        creation_date: now.toISOString(),
+        created_by: me.username,
+        area: Number(reqdata.area),
+        population: Number(reqdata.population),
+        establishment_date: reqdata.time + ":00" + reqdata.timezone,
+        capital: ((reqdata.capital).toString() !== "false"),
+        meters_above_sea_level: Number(reqdata.macl),
+        car_code: Number(reqdata.code),
+        climate: reqdata.climate,
+        standardOfLiving: reqdata.qol,
+        governor: {
+          id: Number(reqdata.governor)
+        }
       }),
     });
 
@@ -213,64 +249,59 @@ const [loading, setLoading] = useState(true);
     } else console.log(response);
   };
 
-  async function tryjoin(id, modpriv) {
-    const index = data.findIndex(item => item.id === id);
-    if (index !== -1) {
-      if (modpriv == 0) {
-        if (data[index].players.length < 2) {
-          const response = await fetch(process.env.REQUEST + "/" + id, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if (response.ok) console.log("joined request");
-          else console.log(response);
-        } else console.log("this request is full!");
-        fetchReqs();
-      } else {
-        if (data[index].moderator_id == undefined) {
-          const response = await fetch(process.env.REQUEST + "/" + id, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if (response.ok) console.log("joined request");
-          else console.log(response);
-        } else console.log("this request already has a moderator in charge!");
-        fetchReqs();
-      }
-    } else console.log("this request doesn't exist");
-  }
 
-  async function leave(id, modpriv) {
-    const index = data.findIndex(item => item.id === id);
+  const update_req = async e => {
+    e.preventDefault();
+    formClose();
+    const formData = new FormData(e.target);
+    const reqdata = Object.fromEntries(formData.entries());
+    const now = new Date();
+    const response = await fetch(process.env.CITIES, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        name: reqdata.name,
+        coordinates: {
+          id: Number(reqdata.x)
+        },
+        creation_date: now.toISOString(),
+        created_by: me.username,
+        area: Number(reqdata.area),
+        population: Number(reqdata.population),
+        establishment_date: reqdata.time + ":00" + reqdata.timezone,
+        capital: ((reqdata.capital).toString() !== "false"),
+        meters_above_sea_level: Number(reqdata.macl),
+        car_code: Number(reqdata.code),
+        climate: reqdata.climate,
+        standardOfLiving: reqdata.qol,
+        governor: {
+          id: Number(reqdata.governor)
+        }
+      }),
+    });
+
+    if (response.ok) {
+      fetchReqs();
+    } else console.log(response);
+  };
+
+  async function deleteit(id, modpriv) {
+    const index = data.find(item => item.id === id);
+    const username = data.find(item => item.id === id).created_by;
     if (index !== -1) {
-      if (modpriv == 0) {
-        const response = await fetch(process.env.REQUEST + "/" + id, {
+      if (username == me.username || modpriv){
+        const response = await fetch(process.env.CITIES + "/" + id, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
-          },
+          }
         });
+    
         if (response.ok) {
-          console.log("left request");
-          fetchReqs();
-        } else console.log(response);
-      } else {
-        const response = await fetch(process.env.REQUEST + "/" + id, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          console.log("left request");
           fetchReqs();
         } else console.log(response);
       }
@@ -283,59 +314,42 @@ const [loading, setLoading] = useState(true);
         <EpicForm
           isOpen={formActive}
           onClose={formClose}
-          onSubmit={create_req}
+          onSubmit={what_do}
+          action={what_do_title}
+          humans={humandata}
         />
         <button
           className={styles.maxbutton}
-          onClick={() => router.push("/requests")}
+          onClick={() => router.push("/cities")}
         >
-          REQUESTS
+          CITIES
         </button>
         <button
           className={styles.maxbutton}
-          onClick={() => router.push("/matches")}
+          onClick={() => router.push("/people")}
         >
-          MATCHES
+          PEOPLE
         </button>
-        <button
-          className={styles.maxbutton}
-          onClick={() => router.push("/leaderboard")}
-        >
-          LEADERBOARDS
-        </button>
-        <ProfilePanel name={me.firstname} token={token} />
+        <ProfilePanel name={me.username} token={token} />
       </header>
       <main className={styles.main}>
-        <h1>AVAILABLE REQUESTS</h1>
-        <button className={styles.roundbutton} onClick={() => formOpen()}>
+        <h1>THE CITIES</h1>
+        <button className={styles.roundbutton} onClick={() => {setWhatDo(() => create_req); setWhatDoTitle("CREATE"); formOpen();}}>
           +
         </button>
         <div className={styles.req}>
         <ClipLoader color="#999999" loading={loading} size={150} aria-label="Loading Spinner" data-testid="loader" className={styles.reqout}/>
           {data.slice((count - 1) * 20, count * 20).map((request, i) => (
             <RequestComp
-              id={request.id}
-              place={{ room: request.room, building: request.building }}
-              time={request.time}
-              mod={{
-                id: request.moderator_id,
-                surname: request.moderator_secondname,
-                name: request.moderator_firstname,
-                elo: request.moderator_elo,
-              }}
-              players={request.players}
+              city={request}
               key={i}
-              joinbutton={
-                request.players[0]?.id === me.id ||
-                request.players[1]?.id === me.id ||
-                request?.moderator_id === me.id
-                  ? () => leave(request.id, modpriv)
-                  : () => tryjoin(request.id, modpriv)
+              updatebutton={
+                (me.isAdmin || me.username == request.created_by) ? 
+                () => {setWhatDo(() => update_req); setWhatDoTitle("UPDATE"); formOpen(request.id);} : undefined
               }
-              modbutton={
-                request.players[0]?.id === me.id ||
-                request.players[1]?.id === me.id ||
-                request?.moderator_id === me.id ? true : false
+              deletebutton={
+                (me.isAdmin || me.username == request.created_by) ? 
+                () => deleteit(request.id, me.isAdmin) : undefined
               }
             />
           ))}
