@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import styles from "../page.module.css";
 import ClipLoader from "react-spinners/ClipLoader";
 
-export default function EpicForm({ isOpen, onClose, onSubmit, action, humans}){
+export default function EpicForm({ isOpen, onClose, onSubmit, defaultItem, action, humans}){
 
   const [climate, setClimate] = useState([ 
     'RAIN_FOREST',
@@ -44,20 +44,20 @@ export default function EpicForm({ isOpen, onClose, onSubmit, action, humans}){
 
           <div className={styles.formGroup}>
             <h2>NAME:</h2>
-            <input className={styles.inputbig} id="name" name="name" required />
+            <input className={styles.inputbig} defaultValue={defaultItem.name} id="name" name="name" required />
             <h2>Coordinates:</h2>
             <h3>X:</h3>
-            <input className={styles.inputbig} id="x" name="x" required />
+            <input className={styles.inputbig} defaultValue={defaultItem.coordinates.x} id="x" name="x" required />
             <h3>Y:</h3>
-            <input className={styles.inputbig} id="y" name="y" required />
+            <input className={styles.inputbig} defaultValue={defaultItem.coordinates.y} id="y" name="y" required />
             <h2>Population:</h2>
-            <input className={styles.inputbig} id="population" name="population" required />
+            <input className={styles.inputbig} defaultValue={defaultItem.population} id="population" name="population" required />
             <h2>Area:</h2>
-            <input className={styles.inputbig} id="area" name="area" required />
+            <input className={styles.inputbig} defaultValue={defaultItem.area} id="area" name="area" required />
           </div>
           <div className={styles.formGroup}>
             <h2>Date of establishement:</h2>
-            <input className={styles.inputbig} type="datetime-local" id="time" name="time" required />
+            <input className={styles.inputbig} defaultValue={defaultItem.establishment_date.slice(0, 16)} type="datetime-local" id="time" name="time" required />
             <h2>Timezone:</h2>
             <select className={styles.inputbig} name="timezone" id="timezone">
               <option></option>
@@ -145,15 +145,15 @@ export default function EpicForm({ isOpen, onClose, onSubmit, action, humans}){
               <option value="+13:00">(GMT+13:00) Nuku'alofa</option>
             </select>
             <h2>Capital?</h2>
-            <input className={styles.inputbig} type="checkbox" id="capital" name="capital"/>
+            <input className={styles.inputbig} defaultChecked={defaultItem.capital} type="checkbox" id="capital" name="capital"/>
             <h2>Meters above sea level:</h2>
-            <input className={styles.inputbig} id="macl" name="macl" required />
+            <input className={styles.inputbig} defaultValue={defaultItem.meters_above_sea_level} id="macl" name="macl" required />
           </div>
           <div className={styles.formGroup}>
             <h2>Car code:</h2>
-            <input className={styles.inputbig} id="code" name="code" required />
+            <input className={styles.inputbig} defaultValue={defaultItem.car_code} id="code" name="code" required />
             <h2>Climate:</h2>
-            <select className={styles.inputbig} onChange={handleClimate} id="climate" name="climate">
+            <select className={styles.inputbig} defaultValue={climate.indexOf(defaultItem.climate)+1} onChange={handleClimate} id="climate" name="climate">
               {climate.map((option, id) => (
                 <option key={option} value={id+1}>
                   {option}
@@ -161,7 +161,7 @@ export default function EpicForm({ isOpen, onClose, onSubmit, action, humans}){
               ))}
             </select>
             <h2>Standard of life:</h2>
-            <select className={styles.inputbig} onChange={handleQOL} id="qol" name="qol">
+            <select className={styles.inputbig} defaultValue={cSOL.indexOf(defaultItem.standardOfLiving)+1} onChange={handleQOL} id="qol" name="qol">
               {cSOL.map((option, id) => (
                 <option key={option} value={id+1}>
                   {option}
@@ -169,13 +169,14 @@ export default function EpicForm({ isOpen, onClose, onSubmit, action, humans}){
               ))}
             </select>
             <h2>Governor:</h2>
-            <select className={styles.inputbig} onChange={handleGovernor} id="governor" name="governor">
+            <select className={styles.inputbig} defaultValue={defaultItem.governor.id} onChange={handleGovernor} id="governor" name="governor">
               {humans.map((option, id) => (
                 <option key={option.id} value={option.id}>
                   {option.name}
                 </option>
               ))}
             </select>
+            <input className={styles.inputbig} defaultValue={defaultItem.id} id="id" name="id" hidden/>
             <button type="submit" className={styles.submitButton}>
               Submit
             </button>

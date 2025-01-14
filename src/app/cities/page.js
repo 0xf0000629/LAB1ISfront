@@ -91,8 +91,117 @@ export default function Requests() {
   const [data, setData] = useState([]);
   const [humandata, setHumanData] = useState([]);
 
+  const [comparePH, setCPH] = useState("name");
+
+  const handleCPH = (event) => {
+    setCPH(event.target.value);
+  };
+
+  const [minSOL, setminSOL] = useState("");
+  const handleminSOL = (event) => {
+    setminSOL(event.target.value);
+  };
+
+  const [cityid1, setcityid1] = useState("");
+  const handlecityid1 = (event) => {
+    setcityid1(event.target.value);
+  };
+  const [cityid2, setcityid2] = useState("");
+  const handlecityid2 = (event) => {
+    setcityid2(event.target.value);
+  };
+
+  function compfunc(a, b){
+    switch (comparePH){
+      case "name": return a.name > b.name;
+      case "cx": return a.coordinates.x > b.coordinates.x;
+      case "cy": return a.coordinates.y > b.coordinates.y;
+      case "creationdate": return a.creation_date > b.creation_date;
+      case "createdby": return a.created_by > b.created_by;
+      case "area": return a.area > b.area;
+      case "population": return a.population > b.population;
+      case "estdate": return a.establishment_date > b.establishment_date;
+      case "capital": return a.capital > b.capital;
+      case "masl": return a.meters_above_sea_level > b.meters_above_sea_level;
+      case "carcode": return a.car_code > b.car_code;
+      case "climate": return a.climate > b.climate;
+      case "SOL": return a.standardOfLiving > b.standardOfLiving;
+      case "govname": return a.governor.name > b.governor.name;
+      case "govage": return a.governor.age > b.governor.age;
+      case "govheight": return a.governor.height > b.governor.height;
+    }
+  }
+
+  const [filterName, setfilterName] = useState("");
+  const handlefilterName = (event) => { setfilterName(event.target.value); };
+
+  const [filterCx, setfilterCx] = useState("");
+  const handlefilterCx = (event) => { setfilterCx(event.target.value); };
+
+  const [filterCy, setfilterCy] = useState("");
+  const handlefilterCy = (event) => { setfilterCy(event.target.value); };
+
+  const [filterCreationdate, setfilterCreationdate] = useState("");
+  const handlefilterCreationdate = (event) => { setfilterCreationdate(event.target.value); };
+
+  const [filterCreatedby, setfilterCreatedby] = useState("");
+  const handlefilterCreatedby = (event) => { setfilterCreatedby(event.target.value); };
+
+  const [filterArea, setfilterArea] = useState("");
+  const handlefilterArea = (event) => { setfilterArea(event.target.value); };
+
+  const [filterPopulation, setfilterPopulation] = useState("");
+  const handlefilterPopulation = (event) => { setfilterPopulation(event.target.value); };
+
+  const [filterEstdate, setfilterEstdate] = useState("");
+  const handlefilterEstdate = (event) => { setfilterEstdate(event.target.value); };
+
+  const [filterCapital, setfilterCapital] = useState("");
+  const handlefilterCapital = (event) => { setfilterCapital(event.target.value); };
+
+  const [filterMasl, setfilterMasl] = useState("");
+  const handlefilterMasl = (event) => { setfilterMasl(event.target.value); };
+
+  const [filterCarcode, setfilterCarcode] = useState("");
+  const handlefilterCarcode = (event) => { setfilterCarcode(event.target.value); };
+
+  const [filterClimate, setfilterClimate] = useState("");
+  const handlefilterClimate = (event) => { setfilterClimate(event.target.value); };
+
+  const [filterSOL, setfilterSOL] = useState("");
+  const handlefilterSOL = (event) => { setfilterSOL(event.target.value); };
+
+  const [filterGovname, setfilterGovname] = useState("");
+  const handlefilterGovname = (event) => { setfilterGovname(event.target.value); };
+
+  const [filterGovage, setfilterGovage] = useState("");
+  const handlefilterGovage = (event) => { setfilterGovage(event.target.value); };
+
+  const [filterGovheight, setfilterGovheight] = useState("");
+  const handlefilterGovheight = (event) => { setfilterGovheight(event.target.value); };
+
+
   const [what_do, setWhatDo] = useState(() => {});
   const [what_do_title, setWhatDoTitle] = useState("");
+  const [defaultItem, setDItem] = useState({
+    id: "",
+    name: "",
+    coordinates:{
+      x: "",
+      y: ""
+    },
+    creation_date: "",
+    created_by: "",
+    area: "",
+    population: "",
+    establishment_date: "",
+    capital: false,
+    meters_above_sea_level: "",
+    car_code: "",
+    climate: "",
+    standardOfLiving: "",
+    governor: ""
+  });
 
 const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -119,7 +228,8 @@ const [loading, setLoading] = useState(true);
     }
   }, [token]);
 
-  const formOpen = () => {
+  const formOpen = (obj) => {
+    setDItem(obj);
     setForm(true);
   };
   const formClose = () => {
@@ -166,6 +276,7 @@ const [loading, setLoading] = useState(true);
             climate: item.climate,
             standardOfLiving: item.standardOfLiving,
             governor: {
+              id: item.governor.id,
               name: item.governor.name,
               age: item.governor.age,
               height: item.governor.height
@@ -203,6 +314,54 @@ const [loading, setLoading] = useState(true);
     } else console.log(response);
   };
 
+  const fetchAVRG = async () => {
+    const response = await fetch(process.env.CITIES + "/avrgMASL", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      console.log("epic");
+      let jsondata = response.json().then(jsondata => {
+        alert(jsondata);
+      });
+    } else console.log(response);
+  };
+
+  const fetchSOL = async () => {
+    const response = await fetch(process.env.CITIES + "/minSOL?minSOL=" + minSOL, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      console.log("epic");
+      let jsondata = response.json().then(jsondata => {
+        alert(jsondata);
+      });
+    } else console.log(response);
+  };
+
+  const fetchUC = async () => {
+    const response = await fetch(process.env.CITIES + "/uniqueC", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      console.log("epic");
+      let jsondata = response.json().then(jsondata => {
+        alert(jsondata);
+      });
+    } else console.log(response);
+  };
+
   const fetchMe = async () => {
     if (localStorage.getItem("me") != undefined) {
       let loadme = JSON.parse(localStorage.getItem("me"));
@@ -236,8 +395,8 @@ const [loading, setLoading] = useState(true);
         capital: ((reqdata.capital).toString() !== "false"),
         meters_above_sea_level: Number(reqdata.macl),
         car_code: Number(reqdata.code),
-        climate: reqdata.climate,
-        standardOfLiving: reqdata.qol,
+        climate: Number(reqdata.climate)-1,
+        standardOfLiving: Number(reqdata.qol)-1,
         governor: {
           id: Number(reqdata.governor)
         }
@@ -256,7 +415,7 @@ const [loading, setLoading] = useState(true);
     const formData = new FormData(e.target);
     const reqdata = Object.fromEntries(formData.entries());
     const now = new Date();
-    const response = await fetch(process.env.CITIES, {
+    const response = await fetch(process.env.CITIES + "/" + reqdata.id, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -275,8 +434,8 @@ const [loading, setLoading] = useState(true);
         capital: ((reqdata.capital).toString() !== "false"),
         meters_above_sea_level: Number(reqdata.macl),
         car_code: Number(reqdata.code),
-        climate: reqdata.climate,
-        standardOfLiving: reqdata.qol,
+        climate: Number(reqdata.climate)-1,
+        standardOfLiving: Number(reqdata.qol)-1,
         governor: {
           id: Number(reqdata.governor)
         }
@@ -315,6 +474,7 @@ const [loading, setLoading] = useState(true);
           isOpen={formActive}
           onClose={formClose}
           onSubmit={what_do}
+          defaultItem={defaultItem}
           action={what_do_title}
           humans={humandata}
         />
@@ -334,25 +494,121 @@ const [loading, setLoading] = useState(true);
       </header>
       <main className={styles.main}>
         <h1>THE CITIES</h1>
-        <button className={styles.roundbutton} onClick={() => {setWhatDo(() => create_req); setWhatDoTitle("CREATE"); formOpen();}}>
+        <button className={styles.roundbutton} onClick={() => {setWhatDo(() => create_req); setWhatDoTitle("CREATE"); formOpen({
+          id: "",
+          name: "",
+          coordinates:{
+            x: "",
+            y: ""
+          },
+          creation_date: "",
+          created_by: "",
+          area: "",
+          population: "",
+          establishment_date: "",
+          capital: false,
+          meters_above_sea_level: "",
+          car_code: "",
+          climate: "",
+          standardOfLiving: "",
+          governor: ""
+        });}}>
           +
         </button>
         <div className={styles.req}>
-        <ClipLoader color="#999999" loading={loading} size={150} aria-label="Loading Spinner" data-testid="loader" className={styles.reqout}/>
-          {data.slice((count - 1) * 20, count * 20).map((request, i) => (
-            <RequestComp
-              city={request}
-              key={i}
-              updatebutton={
-                (me.isAdmin || me.username == request.created_by) ? 
-                () => {setWhatDo(() => update_req); setWhatDoTitle("UPDATE"); formOpen(request.id);} : undefined
+          <ClipLoader color="#999999" loading={loading} size={150} aria-label="Loading Spinner" data-testid="loader" className={styles.reqout}/>
+          <table className={styles.tableblur}><tbody>
+            <tr>
+              <th>ID</th>
+              <th onClick={() => setCPH("name")}>Name</th>
+              <th onClick={() => setCPH("cx")}>X</th>
+              <th onClick={() => setCPH("cy")}>Y</th>
+              <th onClick={() => setCPH("creationdate")}>Creation date</th>
+              <th onClick={() => setCPH("createdby")}>Created by</th>
+              <th onClick={() => setCPH("area")}>Area</th>
+              <th onClick={() => setCPH("population")}>Population</th>
+              <th onClick={() => setCPH("estdate")}>Establishment date</th>
+              <th onClick={() => setCPH("capital")}>Capital</th>
+              <th onClick={() => setCPH("masl")}>Meters above sea level</th>
+              <th onClick={() => setCPH("carcode")}>Car code</th>
+              <th onClick={() => setCPH("climate")}>Climate</th>
+              <th onClick={() => setCPH("SOL")}>Standard of living</th>
+              <th onClick={() => setCPH("govname")}>Governor name</th>
+              <th onClick={() => setCPH("govage")}>Governor age</th>
+              <th onClick={() => setCPH("govheight")}>Governor height</th>
+              <th onClick={() => alert("whar?")}>Actions</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th><input key="0" type="text" className={styles.tinyinput} value={filterName} onChange={handlefilterName}></input></th>
+              <th><input key="1" type="text" className={styles.tinyinput} value={filterCx} onChange={handlefilterCx}></input></th>
+              <th><input key="2" type="text" className={styles.tinyinput} value={filterCy} onChange={handlefilterCy}></input></th>
+              <th><input key="3" type="text" className={styles.tinyinput} value={filterCreationdate} onChange={handlefilterCreationdate}></input></th>
+              <th><input key="4" type="text" className={styles.tinyinput} value={filterCreatedby} onChange={handlefilterCreatedby}></input></th>
+              <th><input key="5" type="text" className={styles.tinyinput} value={filterArea} onChange={handlefilterArea}></input></th>
+              <th><input key="6" type="text" className={styles.tinyinput} value={filterPopulation} onChange={handlefilterPopulation}></input></th>
+              <th><input key="7" type="text" className={styles.tinyinput} value={filterEstdate} onChange={handlefilterEstdate}></input></th>
+              <th><input key="8" type="text" className={styles.tinyinput} value={filterCapital} onChange={handlefilterCapital}></input></th>
+              <th><input key="9" type="text" className={styles.tinyinput} value={filterMasl} onChange={handlefilterMasl}></input></th>
+              <th><input key="A" type="text" className={styles.tinyinput} value={filterCarcode} onChange={handlefilterCarcode}></input></th>
+              <th><input key="B" type="text" className={styles.tinyinput} value={filterClimate} onChange={handlefilterClimate}></input></th>
+              <th><input key="C" type="text" className={styles.tinyinput} value={filterSOL} onChange={handlefilterSOL}></input></th>
+              <th><input key="D" type="text" className={styles.tinyinput} value={filterGovname} onChange={handlefilterGovname}></input></th>
+              <th><input key="E" type="text" className={styles.tinyinput} value={filterGovage} onChange={handlefilterGovage}></input></th>
+              <th><input key="F" type="text" className={styles.tinyinput} value={filterGovheight} onChange={handlefilterGovheight}></input></th>
+            </tr>
+          {data.sort(compfunc)
+          .filter(item => item.name.includes(filterName))
+          .filter(item => (""+item.coordinates.x).includes(filterCx))
+          .filter(item => (""+item.coordinates.y).includes(filterCy))
+          .filter(item => item.creation_date.includes(filterCreationdate))
+          .filter(item => item.created_by.includes(filterCreatedby))
+          .filter(item => (""+item.area).includes(filterArea))
+          .filter(item => (""+item.population).includes(filterPopulation))
+          .filter(item => item.establishment_date.includes(filterEstdate))
+          .filter(item => (""+item.capital).includes(filterCapital))
+          .filter(item => (""+item.meters_above_sea_level).includes(filterMasl))
+          .filter(item => (""+item.car_code).includes(filterCarcode))
+          .filter(item => item.climate.includes(filterClimate))
+          .filter(item => item.standardOfLiving.includes(filterSOL))
+          .filter(item => item.governor.name.includes(filterGovname))
+          .filter(item => (""+item.governor.age).includes(filterGovage))
+          .filter(item => (""+item.governor.height).includes(filterGovheight))
+          .slice((count - 1) * 20, count * 20).map((request, i) => (
+            <tr>
+              <td>{request.id}</td>
+              <td>{request.name}</td>
+              <td>{request.coordinates.x}</td>
+              <td>{request.coordinates.y}</td>
+              <td>{request.creation_date}</td>
+              <td>{request.created_by}</td>
+              <td>{request.area}</td>
+              <td>{request.population}</td>
+              <td>{request.establishment_date}</td>
+              <td>{""+request.capital}</td>
+              <td>{request.meters_above_sea_level}</td>
+              <td>{request.car_code}</td>
+              <td>{request.climate}</td>
+              <td>{request.standardOfLiving}</td>
+              <td>{request.governor.name}</td>
+              <td>{request.governor.age}</td>
+              <td>{request.governor.height}</td>
+              <td>
+              {(me.isadmin || me.username == request.created_by) ? 
+              <button className={styles.tinybutton} onClick={() => {setWhatDo(() => update_req); setWhatDoTitle("UPDATE"); formOpen(request);}}>
+                UPDATE
+              </button> : <button></button>
               }
-              deletebutton={
-                (me.isAdmin || me.username == request.created_by) ? 
-                () => deleteit(request.id, me.isAdmin) : undefined
+              {(me.isadmin || me.username == request.created_by) ? 
+              <button className={styles.tinybutton} onClick={() => deleteit(request.id, me.isadmin)}>
+                DELETE
+              </button> : <button></button>
               }
-            />
+              </td>
+            </tr>
           ))}
+          </tbody>
+          </table>
         </div>
       </main>
       <footer className={styles.footer}>
@@ -363,6 +619,25 @@ const [loading, setLoading] = useState(true);
         <button className={styles.roundbutton} onClick={increment}>
           +
         </button>
+        <button className={styles.normalbutton} onClick={fetchAVRG}>
+          Average MASL
+        </button>
+        <div className={styles.reqout}>
+          <input key="0" type="text" className={styles.tinyinput} value={minSOL} onChange={handleminSOL}></input>
+          <button className={styles.normalbutton} onClick={fetchSOL}>
+            Cities worse
+          </button>
+        </div>
+        <button className={styles.normalbutton} onClick={fetchUC}>
+          Unique climate
+        </button>
+        <div className={styles.reqout}>
+          <input key="1" type="text" className={styles.tinyinput} value={cityid1} onChange={handlecityid1}></input>
+          <input key="2" type="text" className={styles.tinyinput} value={cityid2} onChange={handlecityid2}></input>
+          <button className={styles.normalbutton} onClick={fetchSOL}>
+            Cities worse
+          </button>
+        </div>
       </footer>
     </div>
   );

@@ -11,17 +11,8 @@ let basedata = [
   {
     id: 36,
     username: "mike",
-    elo: 2300,
-    rank: "GOAT",
-    matches: 120,
-  },
-  {
-    id: 49,
-    username: "may",
-    elo: 2300,
-    rank: "GOAT",
-    matches: 120,
-  },
+    isAdmin: false
+  }
 ];
 
 export default function Unactive() {
@@ -34,12 +25,8 @@ const [loading, setLoading] = useState(true);
   const [searchbar, setSearch] = useState("");
   const [reroll, setReroll] = useState(0);
   const [me, setMe] = useState({
-    id: -1,
-    firstname: "Guest",
-    secondname: "hawk",
-    elo: 2300,
-    active: true,
-    ismod: false, isadmin: false,
+    username: "guest",
+    isadmin: false
   });
 
   const handleSearch = e => {
@@ -55,7 +42,7 @@ const [loading, setLoading] = useState(true);
 
   const fetchLead = async () => {
     try {
-      const response = await fetch(process.env.ADMIN+"/get-inactive-users", {
+      const response = await fetch(process.env.AUTH, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -72,10 +59,7 @@ const [loading, setLoading] = useState(true);
             loaded.push({
               id: item.id,
               username: item.username,
-              name: item.name,
-              surname: item.surname,
-              elo: item.elo,
-              rank: item.rank,
+              isAdmin: item.cool
             });
           }
           setData(loaded);
@@ -87,8 +71,8 @@ const [loading, setLoading] = useState(true);
   };
 
   async function activate(id) {
-    const response = await fetch(process.env.ADMIN + "/activate/" + id, {
-      method: "POST",
+    const response = await fetch(process.env.AUTH + "/" + id, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -96,7 +80,7 @@ const [loading, setLoading] = useState(true);
     });
     if (response.ok) {
       console.log("user activated");
-      setReroll(reroll+1);
+      fetchLead();
     } else {
       console.log(response);
     }
@@ -117,10 +101,6 @@ const [loading, setLoading] = useState(true);
     setReroll(reroll + 1);
   }, [token]);
 
-  const sendtoprofile = id => {
-    router.push("/profile/" + id);
-  };
-
   if (me.isadmin)
   return (
     <div className={styles.page}>
@@ -128,26 +108,20 @@ const [loading, setLoading] = useState(true);
       <header className={styles.header}>
         <button
           className={styles.maxbutton}
-          onClick={() => router.push("/requests")}
+          onClick={() => router.push("/cities")}
         >
-          REQUESTS
+          CITIES
         </button>
         <button
           className={styles.maxbutton}
-          onClick={() => router.push("/matches")}
+          onClick={() => router.push("/people")}
         >
-          MATCHES
+          PEOPLE
         </button>
-        <button
-          className={styles.maxbutton}
-          onClick={() => router.push("/leaderboard")}
-        >
-          LEADERBOARDS
-        </button>
-        <ProfilePanel name={me.firstname} token={token} />
+        <ProfilePanel name={me.username} token={token} />
       </header>
       <main className={styles.main}>
-        <h1>UNACTIVATED USERS</h1>
+        <h1>NOT ADMINS</h1>
         <input className={styles.inputbig} 
           type="text"
           placeholder="Search..."
@@ -159,31 +133,26 @@ const [loading, setLoading] = useState(true);
           <ClipLoader color="#999999" loading={loading} size={150} aria-label="Loading Spinner" data-testid="loader" className={styles.reqout}/>
           {data
             .filter(item => item.username.startsWith(searchbar))
+            .filter(item => (item.isAdmin == false))
             .slice(0, 100)
             .map((player, i) => (
-              <button
+              <div
                 key={"plaque" + i}
-                className={styles.leadercard}
-                onClick={() => sendtoprofile(player.id)}
+                className={styles.reqout}
               >
                 <div className={styles.leader}>
-                  <h2> {player.username + "(" + player.name + " " + player.surname + ")"} </h2>
-                </div>
-                <div className={styles.leader}>
-                  <h2>
-                    {" "}
-                    {player.elo}, {player.rank}
-                  </h2>
+                  <h2> {player.username} </h2>
+                  ID: {player.id}
                 </div>
                 <div className={styles.leader}>
                   <button
                     className={styles.normalbutton}
                     onClick={() => activate(player.id)}
                   >
-                    ACTIVATE
+                    MAKE INTO ADMIN
                   </button>
                 </div>
-              </button>
+              </div>
             ))}
         </div>
       </main>

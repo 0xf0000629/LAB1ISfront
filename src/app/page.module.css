@@ -55,6 +55,11 @@
   grid-row-start: 2;
 }
 
+.tinyinput {
+  size: 1;
+  width: 100%;
+}
+
 .main ol {
   font-family: var(--font-geist-mono);
   padding-left: 0;
@@ -135,6 +140,7 @@
 
 .req {
   gap: 50px;
+  width: 100%;
   appearance: none;
   padding: 0 20px;
   transition: background 0.2s, color 0.2s, border-color 0.2s;
@@ -282,11 +288,20 @@ a.secondary {
   background-color: #ffffff;
 }
 .normalbutton {
-  padding: 10px 20px;
+  height: fit-content;
+  padding: 12px 10px;
   border-radius: 5px;
   border-color: #101010;
   border-width: 2px;
   font-size: 12pt;
+  background-color: #fafafa;
+}
+.tinybutton {
+  padding: 3px 5px;
+  border-radius: 2px;
+  border-color: #101010;
+  border-width: 2px;
+  font-size: 8pt;
   background-color: #ffffff;
 }
 .maxbutton {
@@ -365,4 +380,32 @@ a.secondary {
   border-width: 2px;
   font-size: 12pt;
   background-color: #ffffff;
+}
+
+.tableblur {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.6); /* Semi-transparent background */
+  backdrop-filter: blur(10px); /* Apply blur effect */
+  border-radius: 10px; /* Rounded corners */
+  overflow: hidden; /* Ensure corners stay rounded */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+.tableblur th,
+.tableblur td {
+  padding: 5px, 5px;
+  text-align: center; /* Align text to the left */
+  font-size: small;
+  border: 1px solid rgba(0, 0, 0, 0.2); /* Light border between rows */
+  color: #333; /* Text color */
+}
+
+.tableblur th {
+  background: rgba(0, 0, 0, 0.1); /* Slightly darker for header */
+  font-weight: bold; /* Bold header text */
+  color: #000; /* Text color for headers */
+}
+
+.tableblur tr:hover {
+  background: rgba(0, 0, 0, 0.05); /* Slight highlight on hover */
 }
