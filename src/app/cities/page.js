@@ -362,6 +362,34 @@ const [loading, setLoading] = useState(true);
     } else console.log(response);
   };
 
+  const send1to2 = async () => {
+    const response = await fetch(process.env.CITIES + "/toanother?id1=" + cityid1 + "&id2=" + cityid2, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      console.log("epic");
+      fetchReqs();
+    } else console.log(response);
+  };
+
+  const send1tomin = async () => {
+    const response = await fetch(process.env.CITIES + "/tosmallest?id1=" + cityid1, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      console.log("epic");
+      fetchReqs();
+    } else console.log(response);
+  };
+
   const fetchMe = async () => {
     if (localStorage.getItem("me") != undefined) {
       let loadme = JSON.parse(localStorage.getItem("me"));
@@ -574,7 +602,7 @@ const [loading, setLoading] = useState(true);
           .filter(item => item.governor.name.includes(filterGovname))
           .filter(item => (""+item.governor.age).includes(filterGovage))
           .filter(item => (""+item.governor.height).includes(filterGovheight))
-          .slice((count - 1) * 20, count * 20).map((request, i) => (
+          .slice((count - 1) * 10, count * 10).map((request, i) => (
             <tr>
               <td>{request.id}</td>
               <td>{request.name}</td>
@@ -624,7 +652,7 @@ const [loading, setLoading] = useState(true);
         </button>
         <div className={styles.reqout}>
           <input key="0" type="text" className={styles.tinyinput} value={minSOL} onChange={handleminSOL}></input>
-          <button className={styles.normalbutton} onClick={fetchSOL}>
+          <button className={styles.tinybutton} onClick={fetchSOL}>
             Cities worse
           </button>
         </div>
@@ -634,8 +662,11 @@ const [loading, setLoading] = useState(true);
         <div className={styles.reqout}>
           <input key="1" type="text" className={styles.tinyinput} value={cityid1} onChange={handlecityid1}></input>
           <input key="2" type="text" className={styles.tinyinput} value={cityid2} onChange={handlecityid2}></input>
-          <button className={styles.normalbutton} onClick={fetchSOL}>
-            Cities worse
+          <button className={styles.tinybutton} onClick={send1to2}>
+            1 to 2
+          </button>
+          <button className={styles.tinybutton} onClick={send1tomin}>
+            1 to min
           </button>
         </div>
       </footer>
