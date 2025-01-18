@@ -108,13 +108,13 @@ const [loading, setLoading] = useState(true);
       <header className={styles.header}>
         <button
           className={styles.maxbutton}
-          onClick={() => router.push("/cities")}
+          onClick={() => router.push("/cities.html")}
         >
           CITIES
         </button>
         <button
           className={styles.maxbutton}
-          onClick={() => router.push("/people")}
+          onClick={() => router.push("/people.html")}
         >
           PEOPLE
         </button>

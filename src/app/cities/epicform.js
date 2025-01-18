@@ -31,6 +31,37 @@ export default function EpicForm({ isOpen, onClose, onSubmit, defaultItem, actio
   const [cGovernor, cGovernorSet] = useState("");
   const handleGovernor = (event) => {cGovernorSet(event.target.value);};
 
+  const [population, setPopulation] = useState(defaultItem.population || "");
+  const [area, setArea] = useState(defaultItem.area || "");
+  const [errors, setErrors] = useState({});
+
+  const validateField = (name, value) => {
+    let error = "";
+    if (value < 0) {
+      error = `${name} must be greater than or equal to 0.`;
+    }
+    return error;
+  };
+
+  const handleBlur = (e) => {
+    const { id, value } = e.target;
+    const error = validateField(id, value);
+    setErrors((prevErrors) => ({ ...prevErrors, [id]: error }));
+  };
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    if (id === "population") {
+      setPopulation(value);
+    } else if (id === "area") {
+      setArea(value);
+    }
+    if (value >= 0) {
+      setErrors((prevErrors) => ({ ...prevErrors, [id]: "" }));
+    }
+  };
+
+
 
   if (!isOpen) return null; // Do not render if the pop-up is not open
   return (
@@ -51,9 +82,11 @@ export default function EpicForm({ isOpen, onClose, onSubmit, defaultItem, actio
             <h3>Y:</h3>
             <input className={styles.inputbig} defaultValue={defaultItem.coordinates.y} id="y" name="y" required />
             <h2>Population:</h2>
-            <input className={styles.inputbig} defaultValue={defaultItem.population} id="population" name="population" required />
+            <input className={styles.inputbig} onChange={handleChange} onBlur={handleBlur} defaultValue={defaultItem.population} id="population" name="population" required />
+            {errors.population && <p className={styles.error}>{errors.population}</p>}
             <h2>Area:</h2>
-            <input className={styles.inputbig} defaultValue={defaultItem.area} id="area" name="area" required />
+            <input className={styles.inputbig} onChange={handleChange} onBlur={handleBlur} defaultValue={defaultItem.area} id="area" name="area" required />
+            {errors.area && <p className={styles.error}>{errors.area}</p>}
           </div>
           <div className={styles.formGroup}>
             <h2>Date of establishement:</h2>
@@ -142,7 +175,7 @@ export default function EpicForm({ isOpen, onClose, onSubmit, defaultItem, actio
               <option value="+11:00">(GMT+11:00) Magadan, Solomon Is., New Caledonia</option>
               <option value="+12:00">(GMT+12:00) Auckland, Wellington</option>
               <option value="+12:00">(GMT+12:00) Fiji, Kamchatka, Marshall Is.</option>
-              <option value="+13:00">(GMT+13:00) Nuku'alofa</option>
+              <option value="+13:00">(GMT+13:00) Nuku&#39;alofa</option>
             </select>
             <h2>Capital?</h2>
             <input className={styles.inputbig} defaultChecked={defaultItem.capital} type="checkbox" id="capital" name="capital"/>
@@ -177,7 +210,7 @@ export default function EpicForm({ isOpen, onClose, onSubmit, defaultItem, actio
               ))}
             </select>
             <input className={styles.inputbig} defaultValue={defaultItem.id} id="id" name="id" hidden/>
-            <button type="submit" className={styles.submitButton}>
+            <button type="submit" className={styles.submitButton}  disabled={!!errors.population || !!errors.area}>
               Submit
             </button>
           </div>

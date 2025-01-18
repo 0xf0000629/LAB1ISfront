@@ -67,6 +67,8 @@ export default function Requests() {
   const [data, setData] = useState([]);
   const [humandata, setHumanData] = useState([]);
 
+  const [statusbar, setStatus] = useState("");
+
   const [what_do, setWhatDo] = useState(() => {});
   const [what_do_title, setWhatDoTitle] = useState("");
   const [defaultItem, setDItem] = useState({
@@ -171,8 +173,9 @@ const [loading, setLoading] = useState(true);
     });
 
     if (response.ok) {
+      setStatus("Person created.");
       fetchReqs();
-    } else console.log(response);
+    } else setStatus("Couldn't create a person.");;
   };
 
 
@@ -196,8 +199,9 @@ const [loading, setLoading] = useState(true);
     });
 
     if (response.ok) {
+      setStatus("Person updated.");
       fetchReqs();
-    } else console.log(response);
+    } else setStatus("Couldn't update a person...");
   };
 
   async function deleteit(id, modpriv) {
@@ -214,10 +218,11 @@ const [loading, setLoading] = useState(true);
         });
     
         if (response.ok) {
+          setStatus("Person deleted.");
           fetchReqs();
         } else console.log(response);
       }
-    } else console.log("this request doesn't exist");
+    } else setStatus("This person is tied to a city! Search them in the city tab.");
   }
 
   return (
@@ -232,13 +237,13 @@ const [loading, setLoading] = useState(true);
         />
         <button
           className={styles.maxbutton}
-          onClick={() => router.push("/cities")}
+          onClick={() => router.push("/cities.html")}
         >
           CITIES
         </button>
         <button
           className={styles.maxbutton}
-          onClick={() => router.push("/people")}
+          onClick={() => router.push("/people.html")}
         >
           PEOPLE
         </button>

@@ -93,6 +93,8 @@ export default function Requests() {
 
   const [comparePH, setCPH] = useState("name");
 
+  const [statusbar, setStatus] = useState("");
+
   const handleCPH = (event) => {
     setCPH(event.target.value);
   };
@@ -110,6 +112,18 @@ export default function Requests() {
   const handlecityid2 = (event) => {
     setcityid2(event.target.value);
   };
+
+  function timeconv(time) {
+    const date = new Date(time);
+    const formattedDate = `${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(
+      date.getHours()
+    ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(
+      date.getSeconds()
+    ).padStart(2, "0")}`;
+    return formattedDate;
+  }
 
   function compfunc(a, b){
     switch (comparePH){
@@ -180,6 +194,21 @@ export default function Requests() {
   const [filterGovheight, setfilterGovheight] = useState("");
   const handlefilterGovheight = (event) => { setfilterGovheight(event.target.value); };
 
+  const [fileContent, setFileContent] = useState("");
+  const [fileName, setFileName] = useState("");
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFileName(file.name);
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setFileContent(e.target.result); // Set the file content
+      };
+      reader.readAsText(file); // Adjust to the format you expect (e.g., `readAsDataURL` for images)
+    }
+  };
 
   const [what_do, setWhatDo] = useState(() => {});
   const [what_do_title, setWhatDoTitle] = useState("");
@@ -237,7 +266,7 @@ const [loading, setLoading] = useState(true);
   };
 
   const increment = () => {
-    if (count < Math.floor(data.length / 20) + 1) setCount(count + 1);
+    if (count < Math.floor(data.length / 10) + 1) setCount(count + 1);
   };
   const decrement = () => {
     if (count > 1) setCount(count - 1);
@@ -325,9 +354,9 @@ const [loading, setLoading] = useState(true);
     if (response.ok) {
       console.log("epic");
       let jsondata = response.json().then(jsondata => {
-        alert(jsondata);
+        setStatus("Average MASL: " + jsondata);
       });
-    } else console.log(response);
+    } else setStatus("Coudn't fetch average MASL...");
   };
 
   const fetchSOL = async () => {
@@ -341,9 +370,9 @@ const [loading, setLoading] = useState(true);
     if (response.ok) {
       console.log("epic");
       let jsondata = response.json().then(jsondata => {
-        alert(jsondata);
+        setStatus("Cities with SOL worse than " + minSOL + ": " + jsondata);
       });
-    } else console.log(response);
+    } else setStatus("Coudn't fetch cities...");
   };
 
   const fetchUC = async () => {
@@ -357,9 +386,9 @@ const [loading, setLoading] = useState(true);
     if (response.ok) {
       console.log("epic");
       let jsondata = response.json().then(jsondata => {
-        alert(jsondata);
+        setStatus("Cities with unique climate: " + jsondata);
       });
-    } else console.log(response);
+    } else setStatus("Coudn't fetch cities...");
   };
 
   const send1to2 = async () => {
@@ -371,9 +400,9 @@ const [loading, setLoading] = useState(true);
       },
     });
     if (response.ok) {
-      console.log("epic");
+      setStatus("Population transfered from city " + cityid1 + " to city " + cityid2);
       fetchReqs();
-    } else console.log(response);
+    } else setStatus("Couldn't trasnfer...");
   };
 
   const send1tomin = async () => {
@@ -385,10 +414,27 @@ const [loading, setLoading] = useState(true);
       },
     });
     if (response.ok) {
-      console.log("epic");
+      setStatus("Population transfered to the emptiest city.");
       fetchReqs();
-    } else console.log(response);
+    } else setStatus("Couldn't trasnfer...");
   };
+
+  const masscreation = async () => {
+    const response = await fetch(process.env.CITIES + "/mass", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: fileContent
+    });
+    if (response.ok) {
+      let jsondata = response.json().then(jsondata => {
+        setStatus(jsondata);
+      });
+      fetchReqs();
+    } else setStatus("man...");
+  }
 
   const fetchMe = async () => {
     if (localStorage.getItem("me") != undefined) {
@@ -420,7 +466,7 @@ const [loading, setLoading] = useState(true);
         area: Number(reqdata.area),
         population: Number(reqdata.population),
         establishment_date: reqdata.time + ":00" + reqdata.timezone,
-        capital: ((reqdata.capital).toString() !== "false"),
+        capital: (reqdata.capital !== undefined),
         meters_above_sea_level: Number(reqdata.macl),
         car_code: Number(reqdata.code),
         climate: Number(reqdata.climate)-1,
@@ -432,8 +478,9 @@ const [loading, setLoading] = useState(true);
     });
 
     if (response.ok) {
+      setStatus("City added!");
       fetchReqs();
-    } else console.log(response);
+    } else setStatus("Couldn't add the city...");
   };
 
 
@@ -459,7 +506,7 @@ const [loading, setLoading] = useState(true);
         area: Number(reqdata.area),
         population: Number(reqdata.population),
         establishment_date: reqdata.time + ":00" + reqdata.timezone,
-        capital: ((reqdata.capital).toString() !== "false"),
+        capital: (reqdata.capital !== undefined),
         meters_above_sea_level: Number(reqdata.macl),
         car_code: Number(reqdata.code),
         climate: Number(reqdata.climate)-1,
@@ -471,8 +518,9 @@ const [loading, setLoading] = useState(true);
     });
 
     if (response.ok) {
+      setStatus("City updated!");
       fetchReqs();
-    } else console.log(response);
+    } else setStatus("Couldn't update the city...");
   };
 
   async function deleteit(id, modpriv) {
@@ -489,10 +537,11 @@ const [loading, setLoading] = useState(true);
         });
     
         if (response.ok) {
+          setStatus("City deleted.");
           fetchReqs();
         } else console.log(response);
       }
-    } else console.log("this request doesn't exist");
+    } else setStatus("This request doesn't exist.");
   }
 
   return (
@@ -508,41 +557,53 @@ const [loading, setLoading] = useState(true);
         />
         <button
           className={styles.maxbutton}
-          onClick={() => router.push("/cities")}
+          onClick={() => router.push("/cities.html")}
         >
           CITIES
         </button>
         <button
           className={styles.maxbutton}
-          onClick={() => router.push("/people")}
+          onClick={() => router.push("/people.html")}
         >
           PEOPLE
         </button>
         <ProfilePanel name={me.username} token={token} />
       </header>
       <main className={styles.main}>
-        <h1>THE CITIES</h1>
-        <button className={styles.roundbutton} onClick={() => {setWhatDo(() => create_req); setWhatDoTitle("CREATE"); formOpen({
-          id: "",
-          name: "",
-          coordinates:{
-            x: "",
-            y: ""
-          },
-          creation_date: "",
-          created_by: "",
-          area: "",
-          population: "",
-          establishment_date: "",
-          capital: false,
-          meters_above_sea_level: "",
-          car_code: "",
-          climate: "",
-          standardOfLiving: "",
-          governor: ""
-        });}}>
-          +
-        </button>
+        <div className={styles.reqout}>
+          <h1>THE CITIES</h1>
+          <button className={styles.roundbutton} onClick={() => {setWhatDo(() => create_req); setWhatDoTitle("CREATE"); formOpen({
+            id: "",
+            name: "",
+            coordinates:{
+              x: "",
+              y: ""
+            },
+            creation_date: "",
+            created_by: "",
+            area: "",
+            population: "",
+            establishment_date: "",
+            capital: false,
+            meters_above_sea_level: "",
+            car_code: "",
+            climate: "",
+            standardOfLiving: "",
+            governor: ""
+          });}}>
+            +
+          </button>
+          <input className={styles.inputbig} disabled value={statusbar}></input>
+          <div>
+            <h2>you're file:</h2>
+            <input className={styles.tinybutton} type="file" onChange={handleFileChange} />
+            {fileContent && (
+              <div>
+                <button className={styles.tinybutton} onClick={masscreation}> LET'S GO </button>
+              </div>
+            )}
+          </div>
+        </div>
         <div className={styles.req}>
           <ClipLoader color="#999999" loading={loading} size={150} aria-label="Loading Spinner" data-testid="loader" className={styles.reqout}/>
           <table className={styles.tableblur}><tbody>
@@ -603,16 +664,16 @@ const [loading, setLoading] = useState(true);
           .filter(item => (""+item.governor.age).includes(filterGovage))
           .filter(item => (""+item.governor.height).includes(filterGovheight))
           .slice((count - 1) * 10, count * 10).map((request, i) => (
-            <tr>
+            <tr key={i}>
               <td>{request.id}</td>
               <td>{request.name}</td>
               <td>{request.coordinates.x}</td>
               <td>{request.coordinates.y}</td>
-              <td>{request.creation_date}</td>
+              <td>{timeconv(request.creation_date)}</td>
               <td>{request.created_by}</td>
               <td>{request.area}</td>
               <td>{request.population}</td>
-              <td>{request.establishment_date}</td>
+              <td>{timeconv(request.establishment_date)}</td>
               <td>{""+request.capital}</td>
               <td>{request.meters_above_sea_level}</td>
               <td>{request.car_code}</td>

@@ -100,7 +100,7 @@ export default function Home() {
   useEffect(() => {
     if (token != undefined && token != null){
       if (me.placeholder == undefined) {
-        router.push("/cities");
+        router.push("/cities.html");
       }
       else fetchMe(token);
     }

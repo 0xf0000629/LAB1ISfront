@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',
+  //assetPrefix: '/~s335113/',
+  //basePath: '/~s335113',
   env: {
     API: "http://localhost:8080/api",
     USER: "http://localhost:8080/api/users",

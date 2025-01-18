@@ -18,7 +18,7 @@ body {
 
 body {
   color: var(--foreground);
-  background: url("../../public/bgpng.png");
+  background: url("../../public/sky.jpg");
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
