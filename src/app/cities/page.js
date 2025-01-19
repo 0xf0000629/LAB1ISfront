@@ -430,10 +430,10 @@ const [loading, setLoading] = useState(true);
     });
     if (response.ok) {
       let jsondata = response.json().then(jsondata => {
-        setStatus(jsondata);
+        setStatus("New ids: "+ jsondata.ids);
       });
       fetchReqs();
-    } else setStatus("man...");
+    } else setStatus("Couldn't add, check car codes.");
   }
 
   const fetchMe = async () => {
@@ -480,7 +480,7 @@ const [loading, setLoading] = useState(true);
     if (response.ok) {
       setStatus("City added!");
       fetchReqs();
-    } else setStatus("Couldn't add the city...");
+    } else setStatus("Couldn't add, check car code.");
   };
 
 
@@ -520,7 +520,7 @@ const [loading, setLoading] = useState(true);
     if (response.ok) {
       setStatus("City updated!");
       fetchReqs();
-    } else setStatus("Couldn't update the city...");
+    } else setStatus("Couldn't update, check car code.");
   };
 
   async function deleteit(id, modpriv) {
@@ -539,7 +539,7 @@ const [loading, setLoading] = useState(true);
         if (response.ok) {
           setStatus("City deleted.");
           fetchReqs();
-        } else console.log(response);
+        } else setStatus(response);
       }
     } else setStatus("This request doesn't exist.");
   }

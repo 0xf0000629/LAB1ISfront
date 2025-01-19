@@ -209,7 +209,7 @@ const [loading, setLoading] = useState(true);
     const username = data.find(item => item.id === id).created_by;
     if (index !== -1) {
       if (username == me.username || modpriv){
-        const response = await fetch(process.env.CITIES + "/" + id, {
+        const response = await fetch(process.env.HUMAN + "/" + id, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -259,6 +259,7 @@ const [loading, setLoading] = useState(true);
           });}}>
           +
         </button>
+        <input className={styles.inputbig} disabled value={statusbar}></input>
         <div className={styles.req}>
         <ClipLoader color="#999999" loading={loading} size={150} aria-label="Loading Spinner" data-testid="loader" className={styles.reqout}/>
           {data.slice((count - 1) * 20, count * 20).map((request, i) => (
@@ -267,12 +268,12 @@ const [loading, setLoading] = useState(true);
               key={i}
               idp={request.id}
               updatebutton={
-                (me.isAdmin || me.username == request.added_by) ? 
+                (me.isadmin || me.username == request.added_by) ? 
                 () => {setWhatDo(() => update_req); setWhatDoTitle("UPDATE"); formOpen(request);} : undefined
               }
               deletebutton={
-                (me.isAdmin || me.username == request.added_by) ? 
-                () => deleteit(request.id, me.isAdmin) : undefined
+                (me.isadmin || me.username == request.added_by) ? 
+                () => deleteit(request.id, me.isadmin) : undefined
               }
             />
           ))}
